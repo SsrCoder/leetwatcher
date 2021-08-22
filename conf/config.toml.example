@@ -1,2 +1,6 @@
-[mysql]
-url = "root@tcp(localhost)/leet_watcher?charset=utf8mb4&parseTime=true&loc=Local&max_idle=100&max_active=100&readTimeout=1s"
+[bot]
+qq = 10010
+url = "localhost:23333"
+
+[db.mysql]
+url = "root@tcp(localhost)/leet_watcher?charset=utf8mb4&parseTime=true&loc=Local&readTimeout=1s"

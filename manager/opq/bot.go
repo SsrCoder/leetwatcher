@@ -2,24 +2,29 @@ package opq
 
 import (
 	"github.com/mcoo/OPQBot"
+	"github.com/robfig/cron/v3"
 )
 
-type bot struct {
+type Bot struct {
+	*OPQBot.BotManager
 	bm *OPQBot.BotManager
+	c  *cron.Cron
 }
 
-func NewBot(qq int64, host string) *bot {
+func NewBot(qq int64, host string) *Bot {
 	bm := OPQBot.NewBotManager(qq, host)
-	return &bot{
-		bm: &bm,
+	return &Bot{
+		BotManager: &bm,
+		bm:         &bm,
+		c:          cron.New(cron.WithSeconds()),
 	}
 }
 
-func (b *bot) OnCrontab(crontab string, fn func()) {
-
+func (b *Bot) OnCrontab(crontab string, fn func()) {
+	b.c.AddFunc(crontab, fn)
 }
 
-func (b *bot) OnGroupMessage(funcs ...GroupMessageFunc) {
+func (b *Bot) OnGroupMessage(funcs ...GroupMessageFunc) {
 	var f []interface{}
 	for _, ff := range funcs {
 		f = append(f, ff)
@@ -27,6 +32,6 @@ func (b *bot) OnGroupMessage(funcs ...GroupMessageFunc) {
 	b.bm.AddEvent(OPQBot.EventNameOnGroupMessage, f...)
 }
 
-func (b *bot) Wait() {
+func (b *Bot) Wait() {
 	b.bm.Wait()
 }

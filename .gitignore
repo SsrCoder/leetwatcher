@@ -2,3 +2,7 @@
 .vscode
 
 conf/config.toml
+
+logs
+
+build.sh

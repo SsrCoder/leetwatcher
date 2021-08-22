@@ -2,34 +2,34 @@ package leetcode
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/machinebox/graphql"
+	"github.com/sirupsen/logrus"
 )
 
-type leetClient struct {
+type LeetClient struct {
 	client *graphql.Client
 	debug  bool
 }
 
-func NewClient(endpoint string) *leetClient {
-	return &leetClient{
+func NewClient(endpoint string) *LeetClient {
+	return &LeetClient{
 		client: graphql.NewClient(endpoint),
 	}
 }
 
-func (c *leetClient) Debug(debug bool) {
+func (c *LeetClient) Debug(debug bool) {
 	c.debug = debug
 	if debug {
 		c.client.Log = func(s string) {
-			fmt.Println(s)
+			logrus.Debug(s)
 		}
 	} else {
 		c.client.Log = func(s string) {}
 	}
 }
 
-func (c *leetClient) GetRecentSubmissions(ctx context.Context, user string) (submissions []RecentSubmissions, err error) {
+func (c *LeetClient) GetRecentSubmissions(ctx context.Context, user string) (submissions []RecentSubmissions, err error) {
 	type Data struct {
 		RecentSubmissions []RecentSubmissions `json:"recentSubmissions"`
 	}
@@ -66,6 +66,7 @@ query recentSubmissions($userSlug: String!) {
 
 	var response Data
 	if err := c.client.Run(ctx, request, &response); err != nil {
+		logrus.Errorf("GetRecentSubmissions err: %+v", err)
 		return nil, err
 	}
 	return response.RecentSubmissions, err
