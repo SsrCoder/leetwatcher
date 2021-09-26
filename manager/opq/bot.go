@@ -35,3 +35,25 @@ func (b *Bot) OnGroupMessage(funcs ...GroupMessageFunc) {
 func (b *Bot) Wait() {
 	b.bm.Wait()
 }
+
+func (b *Bot) FindGroupsByGroupName(groupName string) (groups []Group, err error) {
+	groupList, err := b.GetGroupList("")
+	for len(groupList.TroopList) != 0 {
+		if err != nil {
+			return nil, err
+		}
+
+		for _, group := range groupList.TroopList {
+			if group.GroupName == groupName {
+				groups = append(groups, group)
+			}
+		}
+
+		if len(groupList.NextToken) == 0 {
+			break
+		}
+		groupList, err = b.GetGroupList(groupList.NextToken)
+	}
+
+	return
+}

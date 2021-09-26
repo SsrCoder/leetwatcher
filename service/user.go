@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"strings"
 	"time"
 
 	"github.com/SsrCoder/leetwatcher/manager/leetcode"
@@ -45,6 +45,12 @@ func (s *Service) ReloadUsersWithRefresh() {
 		if user.LastSubmitTime.Unix() == submissions[0].SubmitTime {
 			continue
 		}
+		if len(leetcode.SubmitStatusMap[submissions[0].Status]) == 0 {
+			logrus.WithField("submission", submissions[0]).Errorf("Submission status not found | status: %+v", submissions[0].Status)
+		}
+		if len(submissions[0].Status) == 0 {
+			return
+		}
 		// 入库 & 发消息
 		user.LastSubmitTime = time.Unix(submissions[0].SubmitTime, 0)
 		if err := s.d.UpdateUserLastSubmitTime(ctx, user.ID, submissions[0].SubmitTime); err != nil {
@@ -56,31 +62,43 @@ func (s *Service) ReloadUsersWithRefresh() {
 }
 
 func (s *Service) SendLeetCodeSubmitMessage(user model.User, submission leetcode.RecentSubmissions) {
-	groupList, err := s.bot.GetGroupList("")
-	for len(groupList.TroopList) != 0 {
-		if err != nil {
-			// TODO: error check
-			return
-		}
-
-		for _, group := range groupList.TroopList {
-			if group.GroupName == "LeetWatcher" {
-				if len(leetcode.SubmitStatusMap[submission.Status]) == 0 {
-					logrus.WithField("submission", submission).Errorf("Submission status not found | status: %+v", submission.Status)
-				}
-				if len(submission.Status) == 0 {
-					continue
-				}
-				s.bot.SendGroupTextMsg(group.GroupID, fmt.Sprintf("%s上次提交的题目是：\n\nID: %v\n标题: %s\n状态：%s\n语言：%s\n时间: %s",
-					user.Remark, submission.Question.QuestionFrontendID, submission.Question.TranslatedTitle,
-					leetcode.SubmitStatusMap[submission.Status], leetcode.SubmitLanguageMap[submission.Lang],
-					utils.DatetimeFormat(user.LastSubmitTime)))
-			}
-		}
-
-		if len(groupList.NextToken) == 0 {
-			break
-		}
-		groupList, err = s.bot.GetGroupList(groupList.NextToken)
+	groups, err := s.bot.FindGroupsByGroupName("LeetWatcher")
+	if err != nil {
+		logrus.Errorf("FindGroupsByGroupName error: %+v", err)
+		return
 	}
+
+	msg := s.buildLeetCodeSubmitMessage(user, submission)
+
+	for _, group := range groups {
+		s.bot.SendGroupTextMsg(group.GroupID, msg)
+	}
+}
+
+func (s *Service) buildLeetCodeSubmitMessage(user model.User, submission leetcode.RecentSubmissions) string {
+	builder := &strings.Builder{}
+	builder.WriteString(user.Remark)
+	builder.WriteString("上次提交的题目是：\n\n")
+
+	builder.WriteString("ID：")
+	builder.WriteString(submission.Question.QuestionFrontendID)
+	builder.WriteString("\n")
+
+	builder.WriteString("标题：")
+	builder.WriteString(submission.Question.Title)
+	builder.WriteString("\n")
+
+	builder.WriteString("状态：")
+	builder.WriteString(leetcode.SubmitStatusMap[submission.Status])
+	builder.WriteString("\n")
+
+	builder.WriteString("语言：")
+	builder.WriteString(leetcode.SubmitLanguageMap[submission.Lang])
+	builder.WriteString("\n")
+
+	builder.WriteString("时间：")
+	builder.WriteString(utils.DatetimeFormat(user.LastSubmitTime))
+	builder.WriteString("\n")
+
+	return builder.String()
 }
