@@ -85,7 +85,7 @@ func (s *Service) buildLeetCodeSubmitMessage(user model.User, submission leetcod
 	builder.WriteString("\n")
 
 	builder.WriteString("标题：")
-	builder.WriteString(submission.Question.Title)
+	builder.WriteString(submission.Question.TranslatedTitle)
 	builder.WriteString("\n")
 
 	builder.WriteString("状态：")
@@ -98,7 +98,6 @@ func (s *Service) buildLeetCodeSubmitMessage(user model.User, submission leetcod
 
 	builder.WriteString("时间：")
 	builder.WriteString(utils.DatetimeFormat(user.LastSubmitTime))
-	builder.WriteString("\n")
 
 	return builder.String()
 }

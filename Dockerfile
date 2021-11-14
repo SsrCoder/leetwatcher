@@ -25,7 +25,7 @@ COPY --from=builder /go/src/github.com/SsrCoder/leetwatcher/output/output .
 RUN upx -9 -o app output
 ####################################################
 # 3. 运行
-FROM alpine
+FROM ssrcoder/alpine
 
 # 镜像元数据，可以使用 docker inspect 查看
 LABEL author="SsrCoder@gmail.com"
@@ -35,12 +35,6 @@ LABEL author="SsrCoder@gmail.com"
 ENV APP_RUN_DIR /data
 
 WORKDIR $APP_RUN_DIR
-
-RUN apk update \
-    && apk --no-cache add wget ca-certificates \
-    && apk add -f --no-cache git \
-    && apk add -U tzdata \
-    && ln -sf /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
 
 COPY --from=compress /data/app .
 COPY conf ./conf
