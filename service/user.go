@@ -33,7 +33,7 @@ func (s *Service) ReloadUsersWithRefresh() {
 	s.ReloadUsers()
 	ctx := context.Background()
 	for username, user := range UserNameMap {
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 		submissions, err := s.lc.GetRecentSubmissions(ctx, username)
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("GetRecentSubmissions fail: %+v", err)
