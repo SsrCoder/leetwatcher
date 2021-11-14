@@ -29,6 +29,54 @@ func (c *LeetClient) Debug(debug bool) {
 	}
 }
 
+func (c *LeetClient) GetQuestionOfToday(ctx context.Context) (questions []TodayRecord, err error) {
+	request := graphql.NewRequest(`
+query questionOfToday {
+	todayRecord {
+		date
+		userStatus
+		question {
+			questionId
+			frontendQuestionId: questionFrontendId
+			difficulty
+			title
+			titleCn: translatedTitle
+			titleSlug
+			paidOnly: isPaidOnly
+			freqBar
+			isFavor
+			acRate
+			status
+			solutionNum
+			hasVideoSolution
+			topicTags {
+				name
+				nameTranslated: translatedName
+				id
+			}
+			extra {
+				topCompanyTags {
+				imgUrl
+				slug
+				numSubscribed
+				}
+			}
+		}
+		lastSubmission {
+			id
+		}
+	}
+}
+	`)
+
+	var response QuestionOfToday
+	if err := c.client.Run(ctx, request, &response); err != nil {
+		logrus.Errorf("GetQuestionOfToday err: %+v", err)
+		return nil, err
+	}
+	return response.TodayRecord, err
+}
+
 func (c *LeetClient) GetRecentSubmissions(ctx context.Context, user string) (submissions []RecentSubmissions, err error) {
 	type Data struct {
 		RecentSubmissions []RecentSubmissions `json:"recentSubmissions"`

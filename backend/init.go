@@ -20,6 +20,11 @@ func New(s *service.Service) *Backend {
 func (b *Backend) Init() {
 	b.s.ReloadUsers()
 	b.c.AddFunc("*/15 * * * * *", b.s.ReloadUsersWithRefresh)
+
+	b.s.LoadQuestionOfToday()
+	b.c.AddFunc("0 0 * * * *", b.s.LoadQuestionOfToday)
+	b.c.AddFunc("0 0 9 * * *", b.s.NotifyQuestionOfToday)       // 早9点提醒
+	b.c.AddFunc("0 0 22 * * *", b.s.NotifyQuestionOfTodayNight) // 晚10点提醒
 }
 
 func (b *Backend) Start() {

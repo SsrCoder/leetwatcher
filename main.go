@@ -29,7 +29,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	bot := opq.NewBot(1721538083, "http://ssrcoder.com:23300")
+	bot := opq.NewBotWithConfig(conf.Bot)
 	s := service.New(d, bot)
 	s.InitBot()
 	b := backend.New(s)

@@ -11,6 +11,10 @@ type Bot struct {
 	c  *cron.Cron
 }
 
+func NewBotWithConfig(config *BotConfig) *Bot {
+	return NewBot(config.QQ, config.URL)
+}
+
 func NewBot(qq int64, host string) *Bot {
 	bm := OPQBot.NewBotManager(qq, host)
 	return &Bot{
@@ -56,4 +60,12 @@ func (b *Bot) FindGroupsByGroupName(groupName string) (groups []Group, err error
 	}
 
 	return
+}
+
+func AtAll() string {
+	return OPQBot.MacroAtAll()
+}
+
+func At(qqs []int64) string {
+	return OPQBot.MacroAt(qqs)
 }

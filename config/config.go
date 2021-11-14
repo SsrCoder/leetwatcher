@@ -1,9 +1,13 @@
 package config
 
-import "github.com/BurntSushi/toml"
+import (
+	"github.com/BurntSushi/toml"
+	"github.com/SsrCoder/leetwatcher/manager/opq"
+)
 
 type Config struct {
-	DB *DBConfig `toml:"db"`
+	DB  *DBConfig      `toml:"db"`
+	Bot *opq.BotConfig `toml:"bot"`
 }
 
 type DBConfig struct {
