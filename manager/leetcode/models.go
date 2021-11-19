@@ -2,6 +2,7 @@ package leetcode
 
 type Question struct {
 	QuestionFrontendID string `json:"questionFrontendId"`
+	Difficulty         string `json:"difficulty"`
 	Title              string `json:"title"`
 	TranslatedTitle    string `json:"translatedTitle"`
 	TitleSlug          string `json:"titleSlug"`
