@@ -99,6 +99,7 @@ query recentSubmissions($userSlug: String!) {
         }
         question {
             questionFrontendId
+            difficulty
             title
             translatedTitle
             titleSlug

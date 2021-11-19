@@ -88,6 +88,10 @@ func (s *Service) buildLeetCodeSubmitMessage(user model.User, submission leetcod
 	builder.WriteString(submission.Question.TranslatedTitle)
 	builder.WriteString("\n")
 
+	builder.WriteString("难度：")
+	builder.WriteString(leetcode.DifficultyMap[submission.Question.Difficulty])
+	builder.WriteString("\n")
+
 	builder.WriteString("状态：")
 	builder.WriteString(leetcode.SubmitStatusMap[submission.Status])
 	builder.WriteString("\n")
