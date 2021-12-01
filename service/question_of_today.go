@@ -1,8 +1,11 @@
 package service
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -10,6 +13,7 @@ import (
 
 	"github.com/SsrCoder/leetwatcher/manager/leetcode"
 	"github.com/SsrCoder/leetwatcher/manager/opq"
+	"github.com/SsrCoder/leetwatcher/model"
 )
 
 var (
@@ -60,9 +64,11 @@ func (s *Service) SendNotifyQuestionOfTodayMessage(ctx context.Context) {
 	}
 
 	msg := s.buildNotifyQuestionOfTodayMessage()
+	xmlMsg := s.buildNotifyQuestionOfTodayXMLMessage()
 
 	for _, group := range groups {
 		s.bot.SendGroupTextMsg(group.GroupID, msg)
+		s.bot.SendGroupXmlMsg(group.GroupID, xmlMsg)
 	}
 }
 
@@ -115,6 +121,53 @@ func (s *Service) buildNotifyQuestionOfTodayMessage() string {
 	builder.WriteString(TodayQuestion.Question.TitleSlug)
 
 	return builder.String()
+}
+
+func (s *Service) buildNotifyQuestionOfTodayXMLMessage() string {
+	xml, err := template.ParseFiles("conf/xml/question_of_today.xml")
+	if err != nil {
+		panic(err)
+	}
+
+	builder := strings.Builder{}
+	for idx, tag := range TodayQuestion.Question.TopicTags {
+		if idx != 0 {
+			builder.WriteString("，")
+		}
+		builder.WriteString(tag.NameTranslated)
+	}
+	labels := builder.String()
+
+	builder.Reset()
+	for idx, company := range TodayQuestion.Question.Extra.TopCompanyTags {
+		if idx != 0 {
+			builder.WriteString(",")
+		}
+		if slug, ok := leetcode.CompanySlugMap[company.Slug]; ok {
+			builder.WriteString(slug)
+		} else {
+			builder.WriteString(company.Slug)
+		}
+		builder.WriteString("[")
+		builder.WriteString(cast.ToString(company.NumSubscribed))
+		builder.WriteString("]")
+	}
+	companies := builder.String()
+
+	now := time.Now()
+	msgModel := model.QuestionOfTodayMessageModel{
+		URL:        "https://leetcode-cn.com/problems/" + TodayQuestion.Question.TitleSlug,
+		Title:      TodayQuestion.Question.TitleCn,
+		Difficulty: leetcode.DifficultyMap[TodayQuestion.Question.Difficulty],
+		AcRate:     cast.ToString(TodayQuestion.Question.AcRate * 100)[:4] + "%",
+		Labels:     labels,
+		Companies:  companies,
+		Picture:    fmt.Sprintf("https://assets.leetcode-cn.com/medals/%v/lg/%v-%v.png", now.Year(), now.Year(), int(now.Month())),
+	}
+
+	buf := &bytes.Buffer{}
+	xml.Execute(buf, msgModel)
+	return buf.String()
 }
 
 func (s *Service) NotifyQuestionOfTodayNight() {

@@ -12,3 +12,5 @@ type Group = struct {
 	GroupOwner       int64  `json:"GroupOwner"`
 	GroupTotalCount  int    `json:"GroupTotalCount"`
 }
+
+type FriendMessageFunc func(botQQ int64, packet *OPQBot.FriendMsgPack)

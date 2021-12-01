@@ -36,6 +36,14 @@ func (b *Bot) OnGroupMessage(funcs ...GroupMessageFunc) {
 	b.bm.AddEvent(OPQBot.EventNameOnGroupMessage, f...)
 }
 
+func (b *Bot) OnFriendMessage(funcs ...FriendMessageFunc) {
+	var f []interface{}
+	for _, ff := range funcs {
+		f = append(f, ff)
+	}
+	b.bm.AddEvent(OPQBot.EventNameOnFriendMessage, f...)
+}
+
 func (b *Bot) Wait() {
 	b.bm.Wait()
 }

@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<msg serviceID='1' templateID='1' action='' brief='[每日一题]{{.Title}}' sourceMsgId='0' url='{{.URL}}' flag='2' adverSign='0' multiMsgFlag='0'>
+    <item layout='0'>
+        <title size='38' style='1'>{{.Title}}({{.Difficulty}}, {{.AcRate}})</title>
+    </item>
+    <item layout='0'>
+        <hr hidden='false' style='0' />
+    </item>
+    <item layout='2'>
+        <picture cover='{{.Picture}}'/>
+        <title size='30' style='0'>{{.Labels}}</title>
+        <summary>{{.Companies}}</summary>
+    </item>
+    <source name='' icon='' action='' appid='-1' />
+</msg>
